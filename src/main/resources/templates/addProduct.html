@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffee Shop Menu</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<h1>
+    Welcome to the Coffee Shop!
+</h1>
+<h2>
+    Add item to the menu
+</h2>
+    <form action="#" th:action="@{/products/saveproduct}" th:object="${product}" method="post">
+
+        <label for="prodName">Name :</label>
+        <input type="text" id="prodName" name="prodName" th:field="*{productName}">
+        <br>
+        <label for="prodId">ID :</label>
+        <input type="number" id="prodId" name="prodId" th:field="*{productId}">
+        <br>
+        <label for="prodPrice">Price :</label>
+        <input type="number" id="prodPrice" name="prodPrice" th:field="*{productPrice}">
+
+        <br>
+        <button type="submit">
+            Save New Item
+        </button>
+
+
+    </form>
+</body>
+</html>

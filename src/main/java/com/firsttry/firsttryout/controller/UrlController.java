@@ -18,8 +18,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "chrome-extension://ghoieckkcpdepdfibkabjdpbokpdodgk")
+@CrossOrigin(origins = "chrome-extension://miafpdbdgdcnnkobgmhplbepagmncplc")
 public class UrlController {
+
+
+    private final long startTime = System.currentTimeMillis();
 
 
     @Autowired
@@ -46,18 +49,24 @@ public class UrlController {
     );
 
 
-    @PostMapping("/shorten")
-    public ResponseEntity<Urls> getShortenUrls(@RequestBody Urls urls) {
+    private List<LinkDirRequest> linkdirStorage = new ArrayList<>(
+            List.of(
+                    new LinkDirRequest("First Link Dir", "Sample", new ArrayList<>(List.of("Link1", "Link2")), "user1")
+            )
+    );
 
-        int urlID = urlShortenService.getNextURLId();
-        String shortURL = this.BASE_URL + "api/" + Integer.toString(urlID);
-
-        Urls newURLObj = new Urls(urlID, urls.getLongUrl(), shortURL);
-
-        urlStorage.add(newURLObj);
-
-        return ResponseEntity.ok(newURLObj);
-    }
+//    @PostMapping("/shorten")
+//    public ResponseEntity<Urls> getShortenUrls(@RequestBody Urls urls) {
+//
+//        int urlID = urlShortenService.getNextURLId();
+//        String shortURL = this.BASE_URL + "api/" + Integer.toString(urlID);
+//
+//        Urls newURLObj = new Urls(urlID, urls.getLongUrl(), shortURL);
+//
+//        urlStorage.add(newURLObj);
+//
+//        return ResponseEntity.ok(newURLObj);
+//    }
 
 
     @GetMapping("/{urlid}")
@@ -73,6 +82,8 @@ public class UrlController {
     }
 
 
+
+//    ------------------------------------------------- Actual Implementation --------------------------------
 
     @PostMapping("/clc/shorten")
     public Mono<ResponseCLCApi> shorten(@RequestBody RequestCLCApi dto) {
@@ -96,15 +107,54 @@ public class UrlController {
 
     @GetMapping("/l/all")
     public ResponseEntity<List<Map<String, Object>>> getAllUrlItems() throws Exception {
-
         return  ResponseEntity.ok(firestoreService.getFirstTenUsers());
-
     }
 
 
     @GetMapping("/l/{id}")
     public ResponseEntity<Map<String, Object>> getUrlById(@PathVariable String id) throws Exception {
         return ResponseEntity.ok(firestoreService.getUrl(id));
+    }
+
+
+    @PostMapping("/shorten")
+    public ResponseEntity<Urls> getShortenUrls(@RequestBody FirestoreURL urls) throws Exception {
+
+        String urlid = firestoreService.addUrl(urls);
+
+        Urls url = new Urls(0, urls.getUrl(),"comprl.web.app/"+urlid );
+
+//        urls.setShortUrl("https://backend-test-server-7wsu.onrender.com/"+urlid);
+
+        return ResponseEntity.ok(url);
+
+    }
+
+
+    @PostMapping("/createlinkdir")
+    public ResponseEntity<LinkDirRequest> createLinkDir(@RequestBody LinkDirRequest linkDirRequest) {
+        linkdirStorage.add(linkDirRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(linkDirRequest);
+    }
+
+    @GetMapping("/linkdir/{id}")
+    public ResponseEntity<LinkDirRequest> getLinkDir(@PathVariable String id) {
+
+        for  (LinkDirRequest linkDirRequest : linkdirStorage) {
+            if(linkDirRequest.getUserId().equals(id)){
+                return ResponseEntity.ok(linkDirRequest);
+            }
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+
+    @GetMapping("/health")
+    public ResponseEntity<Health> getHealth() {
+
+        return ResponseEntity.ok(new Health("UP", System.currentTimeMillis() - startTime));
+
     }
 
 

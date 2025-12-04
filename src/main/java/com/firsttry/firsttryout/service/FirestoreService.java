@@ -1,10 +1,9 @@
 package com.firsttry.firsttryout.service;
 
+import com.firsttry.firsttryout.model.FirestoreURL;
+import com.firsttry.firsttryout.model.Urls;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class FirestoreService {
@@ -56,4 +56,17 @@ public class FirestoreService {
 
         return results;
     }
+
+
+
+    public String addUrl(FirestoreURL url) throws Exception {
+
+        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document();
+
+        ApiFuture<WriteResult> result = docRef.set(url);
+
+        result.get();  // Wait until write completes
+        return docRef.getId();
+    }
+
 }

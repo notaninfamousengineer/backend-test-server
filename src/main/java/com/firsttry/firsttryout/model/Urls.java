@@ -1,12 +1,14 @@
 package com.firsttry.firsttryout.model;
 
 
+import java.security.SecureRandom;
 
 public class Urls {
 
     private int urlid;
     private String longUrl;
     private String shortUrl;
+
 
 
 //    public Urls(String longUrl) {

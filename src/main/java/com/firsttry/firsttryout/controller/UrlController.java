@@ -4,6 +4,7 @@ package com.firsttry.firsttryout.controller;
 import com.firsttry.firsttryout.model.*;
 import com.firsttry.firsttryout.service.AllURLShorteningServices;
 import com.firsttry.firsttryout.service.FirestoreService;
+import com.firsttry.firsttryout.service.GeminiService;
 import com.firsttry.firsttryout.service.UrlShortenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ public class UrlController {
 
     private String BASE_URL;
     UrlShortenService urlShortenService;
+
+    @Autowired
+    private GeminiService geminiService;
 
     public UrlController() {
         BASE_URL = "http://localhost:8080/";
@@ -131,6 +135,20 @@ public class UrlController {
     }
 
 
+    @PostMapping("/customshorten")
+    public ResponseEntity<Urls> getCustomShortenUrls(@RequestBody FirestoreURL urls) throws Exception {
+
+        String urlDesc = geminiService.getURLDescription(urls.getUrl());
+
+        String urlid = firestoreService.addCustomUrl(urlDesc, urls);
+
+        Urls url = new Urls(0, urls.getUrl(),"comprl.web.app/"+urlid );
+
+        return ResponseEntity.ok(url);
+
+    }
+
+
     @PostMapping("/createlinkdir")
     public ResponseEntity<LinkDirRequest> createLinkDir(@RequestBody LinkDirRequest linkDirRequest) {
         linkdirStorage.add(linkDirRequest);
@@ -154,6 +172,37 @@ public class UrlController {
     public ResponseEntity<Health> getHealth() {
 
         return ResponseEntity.ok(new Health("UP", System.currentTimeMillis() - startTime));
+
+    }
+
+
+    @GetMapping("/urldesc")
+    public ResponseEntity<String> getURLDesc(@RequestBody String url){
+//        String url = "https://leetcode.com/problems/find-smallest-letter-greater-than-target/description/";
+        System.out.println(url);
+        String desc = geminiService.getURLDescription(url);
+
+        return ResponseEntity.ok(desc);
+    }
+
+
+    @PostMapping("/short")
+    public ResponseEntity<Urls> shortifyURL(@RequestBody HouseShortURLRequest reqUrl) throws Exception {
+        String urlid;
+        FirestoreURL tempURL = new FirestoreURL(reqUrl.getUrl());
+        if(reqUrl.isCustomAISlug()){
+            String urlDesc = geminiService.getURLDescription(reqUrl.getUrl());
+            urlid = firestoreService.addCustomUrl(urlDesc, tempURL);
+
+        }else{
+            urlid = firestoreService.addUrl(tempURL);
+//          urls.setShortUrl("https://backend-test-server-7wsu.onrender.com/"+urlid)
+        }
+
+        Urls url = new Urls(0, reqUrl.getUrl(),"comprl.web.app/"+urlid );
+
+        return ResponseEntity.ok(url);
+
 
     }
 

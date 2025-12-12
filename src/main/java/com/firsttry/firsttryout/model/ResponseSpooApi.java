@@ -6,6 +6,7 @@ package com.firsttry.firsttryout.model;
 
 public class ResponseSpooApi {
 
+
     private String alias;
     private long created_at;
     private String long_url;

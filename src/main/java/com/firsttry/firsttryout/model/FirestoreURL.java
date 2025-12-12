@@ -8,6 +8,11 @@ public class FirestoreURL {
 
     public FirestoreURL(){}
 
+    public FirestoreURL(String longUrl){
+        this.url = longUrl;
+        this.password = "";
+    }
+
     public FirestoreURL(String longUrl, String password) {
         this.url = longUrl;
         this.password = "";

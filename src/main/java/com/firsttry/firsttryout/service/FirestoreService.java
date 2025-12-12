@@ -19,6 +19,9 @@ public class FirestoreService {
     @Autowired
     private Firestore firestore;
 
+    @Autowired
+    private  GeminiService geminiService;
+
     @Value("${FIRESTORE_COLLECTION_NAME}")
     private String COLLECTION_NAME;
 
@@ -67,6 +70,20 @@ public class FirestoreService {
 
         result.get();  // Wait until write completes
         return docRef.getId();
+    }
+
+
+    public String addCustomUrl(String urlDesc, FirestoreURL url) throws Exception{
+
+
+
+            ApiFuture<WriteResult> future =
+                    firestore.collection(COLLECTION_NAME)
+                            .document(urlDesc)
+                            .set(url);
+
+            future.get();
+            return urlDesc;
     }
 
 }
